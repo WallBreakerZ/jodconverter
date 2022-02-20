@@ -54,6 +54,7 @@ public abstract class AbstractProcessManager implements ProcessManager {
 
   /**
    * Executes the specified command and return the output.
+   * 执行一组系统命令，并返回命令执行结束的输出
    *
    * @param cmdarray An array containing the command to call and its arguments.
    * @return The command execution output.
@@ -62,14 +63,18 @@ public abstract class AbstractProcessManager implements ProcessManager {
   protected @NonNull List<@NonNull String> execute(final @NonNull String[] cmdarray)
       throws IOException {
 
+    //使用jar中的RunTime类与运行应用程序的环境进行交互（命令行交互），获得命令行启动的进程
     final Process process = Runtime.getRuntime().exec(cmdarray);
 
     final LinesPumpStreamHandler streamsHandler =
         new LinesPumpStreamHandler(process.getInputStream(), process.getErrorStream());
 
+    //输出流 和 错误流 各自开了一个线程，启动标准输出管道（上面执行的进程输出到当前程序中），标准错误流管道
     streamsHandler.start();
     try {
+      //等到上面的进程执行结束后才会向下执行
       process.waitFor();
+      //将streamsHandler率先执行完成，里面调用了线程的join方法，强制使streamsHandler执行完成，结束streamsHandler两个线程的执行
       streamsHandler.stop();
     } catch (InterruptedException ex) {
 

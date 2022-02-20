@@ -49,32 +49,44 @@ public final class LocalOfficeManager
   // The default value for hostName.
   public static final String DEFAULT_HOSTNAME = "127.0.0.1";
   // The default timeout when executing a process call (start/terminate).
+  // 允许执行命令的最大延时，超时后将不再尝试执行任务，并抛出异常结束
   public static final long DEFAULT_PROCESS_TIMEOUT = 120_000L; // 2 minutes
   // The default delay between each try when executing a process call (start/terminate).
+  // office 进程启动失败后等待多久重新启动
   public static final long DEFAULT_PROCESS_RETRY_INTERVAL = 250L; // 0.25 secs.
   // The default delay after an attempt to start an office process before doing anything else.
+  // 在成功启动office进程之后需要等待的延时（只是为了满足FreeBSD系统，其它系统不需要）
   public static final long DEFAULT_AFTER_START_PROCESS_DELAY = 0L; // No delay.
   // The default behavior when we want to start an office process and a process with
   // the same URL already exists.
+  // 当尝试启动新的进程，却发现了存在相同的进程时，执行的命令
   public static final ExistingProcessAction DEFAULT_EXISTING_PROCESS_ACTION =
       ExistingProcessAction.KILL;
   // The default "fail fast" behavior when an office process is started.
+  // 是否异步启动进程，是否关心进程成功启动，false不关心
   public static final boolean DEFAULT_START_FAIL_FAST = false;
   // The default behavior when an office process is started regarding to OpenGL usage.
+  // 成功连接到新启动的office进程后，是否启用OpenGL；false以禁用 OpenGL。如果打开 OpenGL (LibreOffice)，某些文件将无法正确加载。
   public static final boolean DEFAULT_DISABLE_OPENGL = false;
   // The default "keep process alive" behavior on shutdown.
+  // 停止程序后是否仍然在后台保留office进程，不关掉进程，只是简单的断开当前程序与office进程的链接
   public static final boolean DEFAULT_KEEP_ALIVE_ON_SHUTDOWN = false;
   // The default maximum number of tasks an office process can execute before restarting.
+  // office进程处理的任务量可以达到的最大值，到达这个值就会重启office
   public static final int DEFAULT_MAX_TASKS_PER_PROCESS = 200;
   // The minimum value for the delay between each try when executing a process call
   // (start/terminate).
+  // office 进程启动失败后重新启动需要等待的最小值（用于限制 DEFAULT_PROCESS_RETRY_INTERVAL 值）
   public static final long MIN_PROCESS_RETRY_INTERVAL = 0L; // No delay.
   // The maximum value for the delay between each try when executing a process call
   // (start/terminate).
+  // office 进程启动失败后重新启动需要等待的最大值（用于限制 DEFAULT_PROCESS_RETRY_INTERVAL 值）
   public static final long MAX_PROCESS_RETRY_INTERVAL = 10_000L; // 10 sec.
   // The minimum value for the delay after a start process attempt.
+  // 在成功启动office进程之后需要等待的延时的最小值（用于限制 DEFAULT_AFTER_START_PROCESS_DELAY 值）
   public static final long MIN_AFTER_START_PROCESS_DELAY = 0L; // No delay.
   // The maximum value for the delay after a start process attempt.
+  // 在成功启动office进程之后需要等待的延时的最大值（用于限制 DEFAULT_AFTER_START_PROCESS_DELAY 值）
   public static final long MAX_AFTER_START_PROCESS_DELAY = 10_000L; // 10 sec.
 
   /**
@@ -202,24 +214,25 @@ public final class LocalOfficeManager
       // Build the office URLs
       final LocalOfficeManager manager =
           new LocalOfficeManager(
+                  // 指定主机地址，使用的端口号，进程启动的名称
               LocalOfficeUtils.buildOfficeUrls(hostName, portNumbers, pipeNames),
-              officeHome,
-              workingDir,
-              processManager,
-              runAsArgs,
-              templateProfileDir,
-              processTimeout,
-              processRetryInterval,
-              afterStartProcessDelay,
-              existingProcessAction,
-              startFailFast,
-              keepAliveOnShutdown,
-              disableOpengl,
-              maxTasksPerProcess,
-              taskExecutionTimeout,
-              taskQueueTimeout);
+              officeHome,//office的安装目录
+              workingDir,//进程的工作目录
+              processManager,//当前系统的进程管理器，负责执行office进程相关的系统命令
+              runAsArgs,//附带的执行参数
+              templateProfileDir,//无用，未知
+              processTimeout,//允许执行命令的最大延时，超时后将不再尝试执行任务，并抛出异常结束
+              processRetryInterval,// office 进程启动失败后等待多久重新启动
+              afterStartProcessDelay,  // 在成功启动office进程之后需要等待的延时（只是为了满足FreeBSD系统，其它系统不需要）
+              existingProcessAction,  // 当尝试启动新的进程，却发现了存在相同的进程时，执行的命令
+              startFailFast,  // 是否异步启动进程，是否关心进程成功启动，false不关心
+              keepAliveOnShutdown,  // 停止程序后是否仍然在后台保留office进程，不关掉进程，只是简单的断开当前程序与office进程的链接
+              disableOpengl,  // 成功连接到新启动的office进程后，是否启用OpenGL；false以禁用 OpenGL。如果打开 OpenGL (LibreOffice)，某些文件将无法正确加载。
+              maxTasksPerProcess,  // office进程处理的任务量可以达到的最大值，到达这个值就会重启office
+              taskExecutionTimeout,  //等待任务完成的最大等待时间，（最大等待时间为配置的任务执行超时时间）
+              taskQueueTimeout);//阻塞队列中的任务在放弃前等待多长时间
       if (install) {
-        InstalledOfficeManagerHolder.setInstance(manager);
+        InstalledOfficeManagerHolder.setInstance(manager);//一个单例
       }
       return manager;
     }

@@ -12,6 +12,7 @@ spring:
 jodconverter:
   local:
     enabled: true
+    start-fail-fast: true
     format-options:
       html:
         store:

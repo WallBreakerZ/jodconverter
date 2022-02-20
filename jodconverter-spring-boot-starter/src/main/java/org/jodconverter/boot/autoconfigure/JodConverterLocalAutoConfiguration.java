@@ -91,12 +91,22 @@ public class JodConverterLocalAutoConfiguration {
     return builder.build();
   }
 
+  /**
+   * 进程管理器：负责匹配当前的系统类型，并负责执行当前系统的命令（如使用启动命令启动openOffice程序），调用RunTime类或ProcessBuilder类启动进程
+   * @return
+   */
   @Bean
   @ConditionalOnMissingBean(name = "processManager")
   /* default */ ProcessManager processManager() {
     return LocalOfficeUtils.findBestProcessManager();
   }
 
+  /**
+   * 文档格式注册器：负责控制OpenOffice支持转换的文件格式的集合
+   * @param resourceLoader
+   * @return
+   * @throws Exception
+   */
   @Bean
   @ConditionalOnMissingBean(name = "documentFormatRegistry")
   /* default */ DocumentFormatRegistry documentFormatRegistry(final ResourceLoader resourceLoader)
@@ -122,6 +132,14 @@ public class JodConverterLocalAutoConfiguration {
     }
   }
 
+    /**
+     * office运行启动的管理器：
+     * 1、找到office的安装目录，工作目录
+     * 2、构建启动office进程的命令
+     * 3、调用processManager去启动office进程
+     * @param processManager 由spring自动注入（因为添加了 @Bean 注解，创建带参数的bean时，会将相关的bean参数自动注入）
+     * @return
+     */
   @Bean(name = "localOfficeManager", initMethod = "start", destroyMethod = "stop")
   @ConditionalOnMissingBean(name = "localOfficeManager")
   /* default */ OfficeManager localOfficeManager(final ProcessManager processManager) {
@@ -129,6 +147,12 @@ public class JodConverterLocalAutoConfiguration {
     return createOfficeManager(processManager);
   }
 
+  /**
+   * 文档转换器：将office进程管理器和文件格式注册器进行组合，组成一个文档转换器
+   * @param localOfficeManager
+   * @param documentFormatRegistry
+   * @return
+   */
   // Must appear after the localOfficeManager bean creation. Do not reorder this class by name.
   @Bean
   @ConditionalOnMissingBean(name = "localDocumentConverter")
