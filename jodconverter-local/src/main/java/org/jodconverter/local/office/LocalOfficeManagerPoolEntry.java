@@ -43,6 +43,7 @@ import org.jodconverter.core.task.OfficeTask;
  * @see org.jodconverter.local.office.LocalOfficeManager
  * @see LocalOfficeProcessManager
  */
+// 这个类是负责去执行任务，提交任务
 class LocalOfficeManagerPoolEntry extends AbstractOfficeManagerPoolEntry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalOfficeManagerPoolEntry.class);

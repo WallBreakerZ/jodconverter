@@ -169,6 +169,7 @@ public abstract class AbstractOfficeManagerPool<E extends AbstractOfficeManagerP
 
     E manager;
     try {
+      // 获取阻塞队列中的头部元素，若队列为空，则等待taskQueueTimeout时间，直到有元素可用
       manager = pool.poll(taskQueueTimeout, TimeUnit.MILLISECONDS);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
@@ -213,10 +214,12 @@ public abstract class AbstractOfficeManagerPool<E extends AbstractOfficeManagerP
     // to the pool.
     E entry = null;
     try {
+      //拿出来了一个officeManager用于处理任务
       entry = acquireManager();
       entry.execute(task);
     } finally {
       if (entry != null) {
+        //执行完之后，返还当前的officeMananger
         releaseManager(entry);
       }
     }

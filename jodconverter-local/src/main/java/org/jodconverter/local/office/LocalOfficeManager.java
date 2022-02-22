@@ -41,6 +41,7 @@ import org.jodconverter.local.process.ProcessManager;
  * Default {@link org.jodconverter.core.office.OfficeManager} implementation that uses a pool of
  * office processes to execute conversion tasks.
  */
+//这个类负责使用调用任务池中的实例去执行任务，负责调用 LocalOfficeManagerPoolEntry
 public final class LocalOfficeManager
     extends AbstractOfficeManagerPool<LocalOfficeManagerPoolEntry> {
 
