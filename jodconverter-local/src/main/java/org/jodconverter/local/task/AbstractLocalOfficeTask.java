@@ -168,11 +168,13 @@ public abstract class AbstractLocalOfficeTask extends AbstractOfficeTask {
       final @NonNull LocalOfficeContext context, final @NonNull File sourceFile)
       throws OfficeException {
 
+    //获取office内容的读取器
     final XComponentLoader loader = context.getComponentLoader();
 
     AssertUtils.notNull(loader, "Context component loader must not be null");
 
     try {
+      // office文档的属性，(如：只读只写)
       final Map<String, Object> loadProps = getLoadProperties();
       final XComponent document =
           loader.loadComponentFromURL(toUrl(sourceFile), "_blank", 0, toUnoProperties(loadProps));

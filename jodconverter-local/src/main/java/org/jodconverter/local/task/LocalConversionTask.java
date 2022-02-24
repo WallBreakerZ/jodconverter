@@ -114,13 +114,17 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
 
       XComponent document = null;
       try {
+        //读取文件内容
         document = loadDocument(localContext, sourceFile);
+        //补充修改文件
         modifyDocument(context, document);
+        //保存文件
         storeDocument(document, targetFile);
 
         // onComplete on target will copy the temp file to
         // the OutputStream and then delete the temp file
         // if the output is an OutputStream
+        //将转换之后的文件写入输出流中，并删除转换后的临时文件
         target.onComplete(targetFile);
 
       } catch (OfficeException officeEx) {
@@ -140,6 +144,7 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
 
       // Here the source file is no longer required so we can delete
       // any temporary file that has been created if required.
+      //删除临时文件
       source.onConsumed(sourceFile);
     }
   }
@@ -171,12 +176,14 @@ public class LocalConversionTask extends AbstractLocalOfficeTask {
   protected void storeDocument(final @NonNull XComponent document, final @NonNull File targetFile)
       throws OfficeException {
 
+    //获取将转换的文档保存为输出文件时应用的 office 属性。这里决定了office另存为的类型
     final Map<String, Object> storeProps = getStoreProperties(document);
 
     // FilterName must be specify.
     AssertUtils.isTrue(storeProps.containsKey("FilterName"), "Unsupported conversion");
 
     try {
+      //调用 office 进程将文件另存为其他（如pdf）格式  toUnoProperties(storeProps)=FilterName -> writer_pdf_Export，决定了输出格式
       Lo.qi(XStorable.class, document).storeToURL(toUrl(targetFile), toUnoProperties(storeProps));
     } catch (ErrorCodeIOException errorCodeIoEx) {
       throw new OfficeException(
